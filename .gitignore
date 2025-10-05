@@ -69,6 +69,8 @@ logs/
 *.temp
 commands.txt
 
+
+
 # Coverage reports
 htmlcov/
 .coverage

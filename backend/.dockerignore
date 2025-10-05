@@ -1,0 +1,13 @@
+__pycache__/
+.env
+*.db
+tests/
+.git/
+.gitignore
+.dockerignore
+.env.example
+.env.local
+.env.development
+.env.production
+.env.test
+app.db

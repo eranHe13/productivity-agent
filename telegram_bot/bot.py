@@ -102,6 +102,43 @@ async def coach(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Error contacting coach.")
 
 
+async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    resp = requests.get(f"{API}/tasks")
+    if not resp.ok:
+        await update.message.reply_text("❌ Failed to fetch tasks from server.")
+        return
+    tasks = resp.json()
+
+    if not tasks:
+        await update.message.reply_text("You have no tasks at the moment ✅")
+        return
+
+    # Create a detailed text for each task
+    tasks_details = []
+    for t in tasks:
+        status = "✔️ Completed" if t.get('completed') else "⏳ Pending"
+        detail = f"- {t['title']} ({status})"
+        tasks_details.append(detail)
+    tasks_text = "\n".join(tasks_details)
+
+    # Prompt for the coach service
+    prompt = (
+        "You are a personal assistant. Summarize and organize the following task list in a clear, efficient, and pleasant way. "
+        "For each task, provide a short line describing what it is and its status. "
+        "If there are many tasks, sort them by urgency or topic if possible. "
+        "Present the summary in Hebrew as a well-organized list:\n"
+        f"{tasks_text}"
+    )
+
+    coach_resp = requests.post(f"{API}/coach/", json={"prompt": prompt})
+    if not coach_resp.ok:
+        await update.message.reply_text("❌ Failed to generate summary.")
+        return
+    summary_text = coach_resp.json().get("answer", "")
+
+    await update.message.reply_text(f"🧠 Here is your task summary and organization:\n\n{summary_text}")
+
+
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
@@ -114,6 +151,7 @@ def main():
     app.add_handler(CommandHandler("focus_start", focus_start))
     app.add_handler(CommandHandler("focus_stop", focus_stop))
     app.add_handler(CommandHandler("coach", coach))
+    app.add_handler(CommandHandler("summary", summary))
 
     print("Bot running…")
     app.run_polling()
