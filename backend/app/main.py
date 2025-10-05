@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.db.session import Base, engine
 from app.api.router import router
+
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
@@ -22,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
+
 
 @app.get("/health")
 def health_check():
