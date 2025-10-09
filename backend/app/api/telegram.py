@@ -14,7 +14,16 @@ router = APIRouter()
 API = os.getenv("API_BASE_URL", "http://localhost:8000/api")
 ALLOWED = [int(x) for x in os.getenv("ALLOWED_TELEGRAM_USER_IDS", "").split(",") if x]
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-app = ApplicationBuilder().token(TOKEN).build()
+
+def build_app():
+    if not TOKEN:
+        raise ValueError("Missing TELEGRAM_BOT_TOKEN")
+    return ApplicationBuilder().token(TOKEN).build()
+
+app = build_app()
+
+
+
 
 
 
